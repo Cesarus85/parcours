@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AR Parcours – Treadmill Prototype</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="ui">
+    <div class="row">
+      <button id="btnStart">AR starten</button>
+      <button id="btnPlace">Bahn platzieren</button>
+      <button id="btnRecenter">Recenter</button>
+      <button id="btnReset">Reset</button>
+    </div>
+
+    <div class="row small">
+      <span id="metrics">H: –, vY: –, X: –</span>
+    </div>
+
+    <div class="hud">
+      <div class="stat">Score <b id="score">0</b></div>
+      <div class="stat">Combo <b id="combo">x0</b></div>
+      <div class="stat">Miss <b id="misses">0</b></div>
+    </div>
+
+    <div class="row small warn">
+      Treadmill-Mode aktiv. Kleine Hüpfer, Fokus auf Ducken/Seitwärts. Guardian beachten.
+    </div>
+  </div>
+
+  <canvas id="c"></canvas>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
