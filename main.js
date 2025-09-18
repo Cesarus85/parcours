@@ -344,7 +344,7 @@ btnRecenter.addEventListener('click', () => {
   if (trackRoot) {
     const pos = new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld);
     const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize();
-    const yaw = Math.atan2(dir.x, dir.z);
+    const yaw = Math.atan2(-dir.x, -dir.z);
     trackRoot.position.copy(pos);
     trackRoot.rotation.set(0, yaw, 0);
   }
@@ -404,7 +404,7 @@ function placeTrackAtReticle() {
   trackRoot.position.copy(reticle.position);
   // Ausrichtung: Yaw = Blickrichtung
   const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize();
-  const yaw = Math.atan2(forward.x, forward.z);
+  const yaw = Math.atan2(-forward.x, -forward.z);
   trackRoot.rotation.set(0, yaw, 0);
   trackRoot.position.y = 0; // Boden
   // Hänge ggf. bestehende Poolobjekte an trackRoot (falls zuvor erzeugt)
@@ -426,7 +426,7 @@ function onXRFrame(t, frame) {
       reticle.position.set(hitPose.transform.position.x, 0.0, hitPose.transform.position.z);
       // Yaw in Blickrichtung
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize();
-      const yaw = Math.atan2(forward.x, forward.z);
+      const yaw = Math.atan2(-forward.x, -forward.z);
       reticle.rotation.set(-Math.PI / 2, yaw, 0);
     } else {
       reticle.visible = false;
