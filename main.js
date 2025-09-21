@@ -38,30 +38,37 @@ scene.add(reticle);
 const track = {
   width: 1.8,
   length: 3.0,
+  backExtension: 0.5,
   treadmill: true,
   speed: 1.5,         // m/s – Bewegung der Hindernisse Richtung Spieler
   laneOffset: 0.6,    // drei "gedachte" Lanes: -0.6, 0, +0.6
 };
 let trackRoot = null;
 
-function makeTrackRoot(width, length) {
+function makeTrackRoot(config) {
+  const { width, length, backExtension = 0 } = config;
+  const zMin = -length;
+  const zMax = backExtension;
+  const zSpan = zMax - zMin;
+  const zCenter = (zMin + zMax) / 2;
+
   const root = new THREE.Group();
 
   const plane = new THREE.Mesh(
-    new THREE.PlaneGeometry(width, length),
+    new THREE.PlaneGeometry(width, zSpan),
     new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.08 })
   );
   plane.rotation.x = -Math.PI / 2;
-  plane.position.z = -length / 2;
+  plane.position.z = zCenter;
   root.add(plane);
 
-  const grid = new THREE.GridHelper(length, Math.max(2, Math.round(length * 2)), 0x66ccff, 0x224455);
+  const grid = new THREE.GridHelper(zSpan, Math.max(2, Math.round(zSpan * 2)), 0x66ccff, 0x224455);
   grid.rotation.y = Math.PI / 2;
-  grid.position.z = -length / 2;
+  grid.position.z = zCenter;
   root.add(grid);
 
-  const left = lineY(0x66ccff, -width / 2, -length, 0);
-  const right = lineY(0x66ccff, +width / 2, -length, 0);
+  const left = lineY(0x66ccff, -width / 2, zMin, zMax);
+  const right = lineY(0x66ccff, +width / 2, zMin, zMax);
   root.add(left, right);
 
   return root;
@@ -398,7 +405,7 @@ function onSelectPlace() {
 
 function placeTrackAtReticle() {
   if (!trackRoot) {
-    trackRoot = makeTrackRoot(track.width, track.length);
+    trackRoot = makeTrackRoot(track);
     scene.add(trackRoot);
   }
   trackRoot.position.copy(reticle.position);
