@@ -38,7 +38,7 @@ scene.add(reticle);
 const track = {
   width: 1.8,
   length: 3.0,
-  backExtension: 1.0,
+  backExtension: 3.0,
   treadmill: true,
   speed: 1.5,         // m/s – Bewegung der Hindernisse Richtung Spieler
   laneOffset: 0.6,    // drei "gedachte" Lanes: -0.6, 0, +0.6
