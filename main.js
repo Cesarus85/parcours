@@ -209,6 +209,9 @@ class Obstacle {
     }
 
     this.typeMesh = mesh;
+
+    this._materialStates = [];
+    this._captureMaterialOpacities();
   }
 
   spawn(zStart) {
@@ -216,11 +219,24 @@ class Obstacle {
     this.group.visible = true;
     this.group.position.set(0, 0, zStart); // Track-Local
     this._cleared = false;
+    this._restoreMaterialOpacity();
   }
 
   update(dt) {
     if (!this.active) return;
     this.group.position.z += this.speed * dt; // Richtung Spieler (z -> 0)
+
+    if (track.backExtension != null && track.backExtension > 0) {
+      const fadeRange = 0.35;
+      const fadeStart = track.backExtension - fadeRange;
+      const z = this.group.position.z;
+      if (z >= fadeStart) {
+        const fadeProgress = (track.backExtension === fadeStart)
+          ? 1
+          : THREE.MathUtils.clamp((z - fadeStart) / (track.backExtension - fadeStart), 0, 1);
+        this._setMaterialOpacity(1 - fadeProgress);
+      }
+    }
   }
 
   // AABB in Track-Local (mit ggf. Offset bei Gate)
@@ -258,6 +274,32 @@ class Obstacle {
   recycle() {
     this.active = false;
     this.group.visible = false;
+    this._restoreMaterialOpacity();
+  }
+
+  _captureMaterialOpacities() {
+    const seen = new Set();
+    this.group.traverse(obj => {
+      if (obj.isMesh && obj.material) {
+        const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+        materials.forEach(mat => {
+          if (!seen.has(mat)) {
+            seen.add(mat);
+            this._materialStates.push({ material: mat, baseOpacity: mat.opacity ?? 1 });
+          }
+        });
+      }
+    });
+  }
+
+  _setMaterialOpacity(multiplier) {
+    this._materialStates.forEach(({ material, baseOpacity }) => {
+      material.opacity = baseOpacity * multiplier;
+    });
+  }
+
+  _restoreMaterialOpacity() {
+    this._setMaterialOpacity(1);
   }
 }
 
@@ -281,7 +323,8 @@ const pool = {
     for (let i = this.active.length - 1; i >= 0; i--) {
       const ob = this.active[i];
       ob.update(dt);
-      if (ob.group.position.z > 0.6) { // hinter dem Spieler → recyceln
+      const recycleZ = (track.backExtension ?? 0) + 0.1;
+      if (ob.group.position.z > recycleZ) { // hinter dem Spieler → recyceln
         ob.recycle();
         this.active.splice(i, 1);
       }
