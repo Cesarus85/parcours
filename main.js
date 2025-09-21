@@ -361,8 +361,9 @@ const spawner = {
     }
 
     // nächstes Spawnintervall: leicht zufällig, skaliert mit speed
-    const base = THREE.MathUtils.mapLinear(track.speed, 1.0, 2.5, 1.4, 0.9);
-    spawner.nextIn = THREE.MathUtils.clamp(base + (Math.random()*0.6 - 0.3), 0.75, 1.8);
+    const base = THREE.MathUtils.mapLinear(track.speed, 1.0, 2.5, 2.1, 1.3);
+    const randomOffset = Math.random() * 0.9 - 0.45;
+    spawner.nextIn = THREE.MathUtils.clamp(base + randomOffset, 1.2, 2.6);
   },
   update(dt) {
     this.t += dt;
@@ -371,7 +372,7 @@ const spawner = {
       this.spawn();
     }
   },
-  reset() { this.t = 0; this.nextIn = 1.1; },
+  reset() { this.t = 0; this.nextIn = 1.4; },
 };
 
 /** ========= Utilities ========= */
