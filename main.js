@@ -307,6 +307,19 @@ class Obstacle {
 const pool = {
   all: [],
   active: [],
+  recycleThreshold() {
+    return (track.backExtension ?? 0) + 0.1;
+  },
+  shouldRecycle(obstacle) {
+    return obstacle.group.position.z > this.recycleThreshold();
+  },
+  recycleAtIndex(index) {
+    const obstacle = this.active[index];
+    if (!obstacle) return false;
+    obstacle.recycle();
+    this.active.splice(index, 1);
+    return true;
+  },
   get(type) {
     let o = this.all.find(x => !x.active && x.type === type);
     if (!o) {
@@ -323,10 +336,8 @@ const pool = {
     for (let i = this.active.length - 1; i >= 0; i--) {
       const ob = this.active[i];
       ob.update(dt);
-      const recycleZ = (track.backExtension ?? 0) + 0.1;
-      if (ob.group.position.z > recycleZ) { // hinter dem Spieler → recyceln
-        ob.recycle();
-        this.active.splice(i, 1);
+      if (this.shouldRecycle(ob)) {
+        this.recycleAtIndex(i);
       }
     }
   },
@@ -589,9 +600,8 @@ function onXRFrame(t, frame) {
       }
 
       // Recycle, wenn weit hinter Spieler
-      if (ob.group.position.z > 0.6) {
-        ob.recycle();
-        pool.active.splice(i, 1);
+      if (pool.shouldRecycle(ob)) {
+        pool.recycleAtIndex(i);
       }
     }
   }
